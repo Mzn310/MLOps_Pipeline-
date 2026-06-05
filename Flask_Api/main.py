@@ -59,3 +59,15 @@ def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
     with open(vectorizer_path, 'rb') as file:
         vectorizer= pickle.load(file)
     return model, vectorizer
+
+def load_model(model_path, vectorizer_path):
+    """"Load the trained model"""
+    try:
+        with open(model_path, 'rb') as file:
+            model = pickle.load(file)
+        with open(vectorizer_path, 'rb') as file:
+            vectorizer = pickle.load(file)
+        return model, vectorizer
+    except Exception as e:
+        print(f"Error occurred while loading model and vectorizer: {e}")
+        return None, None
