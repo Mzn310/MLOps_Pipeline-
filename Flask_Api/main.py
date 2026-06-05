@@ -48,3 +48,14 @@ def preprocess_comment(comment):
     except Exception as e:
         print(f"Error occurred while preprocessing comment: {e}")
         return comment
+    
+# Load the model and vectorizer from the model registry and local storage
+def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
+    # Set MLflow tracking URI to your server
+    mlflow.set_tracking_uri("http://ec2-52-204-122-132.compute-1.amazonaws.com:5000/")
+    client= MlflowClient()
+    model_uri= f"models:/{model_name}/{model_version}"
+    model= mlflow.sklearn.load_model(model_uri)
+    with open(vectorizer_path, 'rb') as file:
+        vectorizer= pickle.load(file)
+    return model, vectorizer
