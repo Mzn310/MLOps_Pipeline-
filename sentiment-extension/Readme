@@ -1,0 +1,93 @@
+# Social Sentiment Analyzer — Browser Extension
+
+Analyze comment/post sentiment across **YouTube**, **Facebook**, and **Twitter/X** with your own Flask ML model.
+
+## File structure
+
+```
+sentiment-extension/
+├── manifest.json     Extension configuration
+├── content.js        Injected into social pages — detects platform, scrapes text
+├── background.js     Service worker
+├── popup.html        Extension UI
+├── popup.js          UI logic + API calls
+└── app.py            Updated Flask backend
+```
+
+---
+
+## Setup
+
+### 1 — Start Flask
+
+```bash
+pip install flask flask-cors nltk wordcloud mlflow
+python app.py
+```
+
+Make sure `model.pkl` and `tfidf_vectorizer.pkl` are in the same folder.
+
+### 2 — Load the extension in Chrome / Edge
+
+1. Open `chrome://extensions/` (or `edge://extensions/`)
+2. Enable **Developer mode** (top-right toggle)
+3. Click **Load unpacked**
+4. Select this `sentiment-extension/` folder
+
+### 3 — Use it
+
+| Platform  | What it analyzes                            | API key needed? |
+| --------- | ------------------------------------------- | --------------- |
+| YouTube   | Top-level comments via YouTube Data API v3  | ✅ Yes          |
+| Facebook  | Visible post comments (scraped from DOM)    | ❌ No           |
+| Twitter/X | Visible tweets & replies (scraped from DOM) | ❌ No           |
+
+---
+
+## Getting a YouTube API Key
+
+1. Go to https://console.cloud.google.com
+2. Create or select a project
+3. Enable **YouTube Data API v3**
+4. Create credentials → **API key**
+5. Paste into the extension popup (saved automatically)
+
+---
+
+## Facebook & Twitter notes
+
+These platforms are scraped directly from the page DOM — no API key needed.
+**Important:** Scroll down to load more comments/tweets before clicking Analyze,
+since the extension can only read what's already loaded in the browser.
+
+---
+
+## Flask endpoint used by extension
+
+`POST /analyze_video`
+
+```json
+{
+  "comments": ["This video is great!", "Terrible experience..."],
+  "platform": "youtube"
+}
+```
+
+Response:
+
+```json
+{
+  "results": [
+    { "comment": "This video is great!", "sentiment": 1 },
+    { "comment": "Terrible experience...", "sentiment": 0 }
+  ],
+  "summary": {
+    "total": 2,
+    "positive": 1,
+    "negative": 1,
+    "positive_pct": 50.0
+  }
+}
+```
+
+`sentiment: 1` = positive, `sentiment: 0` = negative.
