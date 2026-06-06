@@ -80,7 +80,7 @@ function detectCurrentPage() {
         document.getElementById("yt-key-field").style.display = "none";
 
         if (scrapedComments.length === 0) {
-          setBtn(false, "⚠️", "No text found");
+          setBtn(false, "No text found");
           setStatus(
             "Try scrolling the page to load more comments/tweets, then reopen this popup.",
           );
