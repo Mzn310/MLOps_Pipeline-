@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Sentiment Analyzer",
+  "version": "2.0",
+  "description": "Analyze sentiment on YouTube, Facebook & Twitter/X",
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://www.facebook.com/*",
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://www.googleapis.com/*",
+    "http://localhost:5000/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/watch*",
+        "https://www.facebook.com/*",
+        "https://twitter.com/*",
+        "https://x.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
