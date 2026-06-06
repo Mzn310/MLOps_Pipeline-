@@ -71,3 +71,43 @@ def load_model(model_path, vectorizer_path):
     except Exception as e:
         print(f"Error occurred while loading model and vectorizer: {e}")
         return None, None
+    
+# Initialize the model and vectorizer
+model, vectorizer = load_model("model.pkl","tfidf_vectorizer.pkl")
+
+@app.route('/')
+def home():
+    return "Welcome to our flask api"
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data=request.json
+    comments=data.get('comments')
+    print('i am the comment:',comments)
+    print('i am the type of comment:',type(comments)) 
+
+    if not comments:
+        return jsonify({'error': 'No comment provided'}), 400
+    
+    try:
+        # Preprocess the comment
+        preprocessed_comment = [preprocess_comment(comment) for comment in comments]
+
+        # Transform comments using the vectorize
+        transformed_comments = vectorizer.transform(preprocessed_comment)
+
+        # Convert the sparse matrix to a dense array
+        dense_comments = transformed_comments.toarray()
+
+        # Make predictions
+        predictions = model.predict(dense_comments).tolist()
+
+    except Exception as e:
+        print(f"Error occurred during prediction: {e}")
+        return jsonify({'error': 'An error occurred during prediction'}), 500
+    
+    # Return the response with origin comments and predicted sentiments
+    return jsonify({'comments': comment, "sentiments":sentiment} for comment, sentiment in zip(comments, predictions))
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000,debug=True)
