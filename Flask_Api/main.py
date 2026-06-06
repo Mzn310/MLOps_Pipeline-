@@ -107,7 +107,7 @@ def predict():
         return jsonify({'error': 'An error occurred during prediction'}), 500
     
     # Return the response with origin comments and predicted sentiments
-    return jsonify({'comments': comment, "sentiments":sentiment} for comment, sentiment in zip(comments, predictions))
+    return jsonify([{'comment': comment, "sentiment": sentiment} for comment, sentiment in zip(comments, predictions)])
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000,debug=True)

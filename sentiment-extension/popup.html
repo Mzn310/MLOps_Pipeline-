@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentiment Analyzer</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0a0f;
+        --bg2: #12121a;
+        --bg3: #1a1a28;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.13);
+        --text: #e8e8f0;
+        --muted: #7a7a96;
+        --accent-yt: #ff2d55;
+        --accent-fb: #1877f2;
+        --accent-tw: #1d9bf0;
+        --accent-active: #7c6ffa;
+        --positive: #34c77b;
+        --negative: #ff4b6e;
+        --neutral: #a78bfa;
+        --card-r: 12px;
+        --pill-r: 100px;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        width: 400px;
+        min-height: 200px;
+        overflow-x: hidden;
+      }
+
+      /* ── Header ── */
+      .header {
+        padding: 16px 18px 14px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #7c6ffa, #a78bfa);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .header-text h1 {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+      }
+      .header-text p {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+
+      /* ── Platform badge ── */
+      .platform-bar {
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .platform-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: var(--pill-r);
+        border: 1px solid;
+      }
+      .platform-badge.youtube {
+        background: rgba(255, 45, 85, 0.12);
+        color: var(--accent-yt);
+        border-color: rgba(255, 45, 85, 0.25);
+      }
+      .platform-badge.facebook {
+        background: rgba(24, 119, 242, 0.12);
+        color: var(--accent-fb);
+        border-color: rgba(24, 119, 242, 0.25);
+      }
+      .platform-badge.twitter {
+        background: rgba(29, 155, 240, 0.12);
+        color: var(--accent-tw);
+        border-color: rgba(29, 155, 240, 0.25);
+      }
+      .platform-badge.none {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--muted);
+        border-color: var(--border);
+      }
+
+      .page-title {
+        font-size: 11px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 220px;
+      }
+
+      /* ── Body ── */
+      .body {
+        padding: 16px 18px;
+      }
+
+      /* ── API key field (YouTube only) ── */
+      .field {
+        margin-bottom: 12px;
+      }
+      .field label {
+        font-size: 11px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 5px;
+      }
+      .field input {
+        width: 100%;
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .field input:focus {
+        border-color: var(--accent-active);
+      }
+
+      /* ── Analyze button ── */
+      .btn-analyze {
+        width: 100%;
+        padding: 10px;
+        background: var(--accent-active);
+        border: none;
+        border-radius: var(--card-r);
+        color: #fff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          opacity 0.2s,
+          transform 0.1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+      }
+      .btn-analyze:hover:not(:disabled) {
+        opacity: 0.88;
+      }
+      .btn-analyze:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+      .btn-analyze:disabled {
+        background: var(--bg3);
+        color: var(--muted);
+        cursor: not-allowed;
+      }
+
+      /* ── Status ── */
+      #status {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 10px;
+        min-height: 18px;
+      }
+
+      /* ── Results ── */
+      #results {
+        display: none;
+        margin-top: 14px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .stat-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--card-r);
+        padding: 10px 8px;
+        text-align: center;
+      }
+      .stat-card .num {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .stat-card .lbl {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .stat-card.pos .num {
+        color: var(--positive);
+      }
+      .stat-card.neg .num {
+        color: var(--negative);
+      }
+      .stat-card.tot .num {
+        color: var(--neutral);
+      }
+
+      /* Sentiment bar */
+      .bar-wrap {
+        margin-bottom: 12px;
+      }
+      .bar-track {
+        background: var(--bg3);
+        border-radius: var(--pill-r);
+        height: 7px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: var(--pill-r);
+        transition: width 0.6s ease;
+        background: var(--positive);
+      }
+      .bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* Comment list */
+      .comment-list {
+        max-height: 210px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--bg3) transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .comment-item {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+      }
+      .sentiment-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .sentiment-dot.pos {
+        background: var(--positive);
+      }
+      .sentiment-dot.neg {
+        background: var(--negative);
+      }
+      .sentiment-tag {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .sentiment-tag.pos {
+        color: var(--positive);
+      }
+      .sentiment-tag.neg {
+        color: var(--negative);
+      }
+      .comment-text {
+        font-size: 11.5px;
+        color: #c0c0d8;
+        line-height: 1.5;
+      }
+
+      /* Divider */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0;
+      }
+
+      /* Scroll notice */
+      .scroll-note {
+        font-size: 10px;
+        color: var(--muted);
+        text-align: center;
+        margin-bottom: 6px;
+      }
+
+      /* Platform-specific accent on analyze button */
+      body.youtube .btn-analyze {
+        background: var(--accent-yt);
+      }
+      body.facebook .btn-analyze {
+        background: var(--accent-fb);
+      }
+      body.twitter .btn-analyze {
+        background: var(--accent-tw);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">🧠</div>
+      <div class="header-text">
+        <h1>Sentiment Analyzer</h1>
+        <p>YouTube · Facebook · Twitter/X</p>
+      </div>
+    </div>
+
+    <div class="platform-bar">
+      <div class="platform-badge none" id="platform-badge">Detecting...</div>
+      <span class="page-title" id="page-title"></span>
+    </div>
+
+    <div class="body">
+      <!-- YouTube needs API key, FB/TW scrape directly -->
+      <div id="yt-key-field" class="field" style="display: none">
+        <label>YouTube Data API Key</label>
+        <input
+          type="password"
+          id="api-key"
+          placeholder="AIza..."
+          autocomplete="off"
+        />
+      </div>
+
+      <button class="btn-analyze" id="analyze-btn" disabled>
+        <span id="btn-icon">⏳</span>
+        <span id="btn-label">Detecting page...</span>
+      </button>
+
+      <div id="status"></div>
+
+      <div id="results">
+        <div class="divider"></div>
+
+        <div class="summary-grid">
+          <div class="stat-card pos">
+            <div class="num" id="pos-count">0</div>
+            <div class="lbl">Positive</div>
+          </div>
+          <div class="stat-card neg">
+            <div class="num" id="neg-count">0</div>
+            <div class="lbl">Negative</div>
+          </div>
+          <div class="stat-card tot">
+            <div class="num" id="tot-count">0</div>
+            <div class="lbl">Total</div>
+          </div>
+        </div>
+
+        <div class="bar-wrap">
+          <div class="bar-track">
+            <div class="bar-fill" id="pos-bar" style="width: 0%"></div>
+          </div>
+          <div class="bar-label">
+            <span id="pos-pct">0% positive</span>
+            <span id="neg-pct">0% negative</span>
+          </div>
+        </div>
+
+        <div class="scroll-note" id="comments-note"></div>
+        <div class="comment-list" id="comment-list"></div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
