@@ -189,3 +189,5 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 # after it to add credentials with ui
 
 # you should go to manage Jenkins and you find credentials there and choose secret text not other but to SSH choose Kind SSH Username with private key you find via this https://www.youtube.com/watch?v=FsJ9QBZy1QQ step by step
+
+# click to new item and add name and then choose Pipeline SCM: Server Control Mang and then choose Git and choose on Script Path name of your file with directory like here Jenkinsfile and add repository URL and Branch Specifier
