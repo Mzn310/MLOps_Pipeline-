@@ -1,0 +1,20 @@
+name: Trigger Jenkins Job
+
+# Someone must go to GitHub → Actions → Select workflow → Run workflow.
+on:
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job
+        # Downloads and executes the GitHub Action named jenkins-action.
+        uses: appleboy/jenkins-action@master
+        # Inputs passed to that Action.
+        with:
+          url: ${{ secrets.URL }}
+          user: ${{ secrets.USER }}
+          token: ${{ secrets.TOKEN }}
+          job: ${{ secrets.JOBS }}
