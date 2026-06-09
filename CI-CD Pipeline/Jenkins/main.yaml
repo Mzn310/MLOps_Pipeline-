@@ -14,7 +14,11 @@ jobs:
         uses: appleboy/jenkins-action@master
         # Inputs passed to that Action.
         with:
+          # Jenkins server URL
           url: ${{ secrets.URL }}
+          # Jenkins username from ui
           user: ${{ secrets.USER }}
+          # Jenkins API token from ui configure and then API Token generate
           token: ${{ secrets.TOKEN }}
+          # Jenkins job name is the name of item that you are already created in Jenkins dashboard
           job: ${{ secrets.JOBS }}
