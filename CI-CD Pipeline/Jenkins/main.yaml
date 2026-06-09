@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Jenkins Job
-        # Downloads and executes the GitHub Action named jenkins-action.
+        # Downloads and executes the GitHub Action named jenkins-action
+        # sends an HTTP request to Jenkins API
         uses: appleboy/jenkins-action@master
         # Inputs passed to that Action.
         with:
