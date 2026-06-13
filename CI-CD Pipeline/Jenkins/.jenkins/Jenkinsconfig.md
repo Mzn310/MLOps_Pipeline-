@@ -20,7 +20,7 @@ sudo apt install openjdk-8-jdk -y
 
 #################################################
 
-# Jenkins package repositories
+# Jenkins package repositories you need to choose one repository
 
 # Official Jenkins package source:
 
