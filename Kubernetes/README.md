@@ -139,6 +139,31 @@ Pods Running
 LoadBalancer (Public Access)
 🧠 KEY TAKEAWAYS
 
+
+
+
+
+
+
+git clone https://github.com/pycaret/pycaret-deployment-google.git
+
+export PROJECT_ID=focal-baton-276315
+
+docker build -t gcr.io/${PROJECT_ID}/insurance-app:v1 .
+
+docker images
+
+gcloud auth configure-docker gcr.io
+
+docker push gcr.io/${PROJECT_ID}/insurance-app:v1
+
+gcloud config set compute/zone us-central1
+
+gcloud container clusters create insurance-cluster --num-nodes=1
+
+kubectl create deployment insurance-app --image=gcr.io/${PROJECT_ID}/insurance-app:v1 
+
+kubectl expose deployment insurance-app --type=LoadBalancer --port 80 --target-port 8080
 ✔ Kubernetes runs Docker images (not Dockerfiles)
 ✔ YAML defines infrastructure (Pods, Services, Deployments)
 ✔ Cloud providers manage Kubernetes control plane
